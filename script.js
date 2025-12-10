@@ -64,8 +64,18 @@ function displayWeather({
         <p style="text-transform: uppercase;">${name}</p>
         <img class="weather-icon" src="https://openweathermap.org/img/wn/${icon}@2x.png" alt="iconWeatherDescription">
         <p><strong>Температура: </strong>${Math.round(temp)}°C</p>
-        <small><strong>Ощущается как: </strong>${Math.round(feels_like)}°C</small>
+        <small><strong>Ощущается как: </strong>${Math.round(
+          feels_like
+        )}°C</small>
         <p><strong>Описание: </strong>${description}</p>
         <p><strong>Влажность:</strong> ${humidity}%</p>
         <p><strong>Скорость ветра:</strong> ${speed} m/s</p>`;
 }
+
+const themeCheckBox = document.getElementById("checkChecked");
+
+themeCheckBox.onchange = () => {
+  themeCheckBox.checked
+    ? document.body.classList.add("dark-theme")
+    : document.body.classList.remove("dark-theme");
+};
