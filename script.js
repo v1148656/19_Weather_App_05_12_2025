@@ -1,12 +1,33 @@
-const API_KEY = "fa1e72ff893c6a4a5ed4077327e855b4";
 const cityValueInput = document.getElementById("cityValueInput");
 const weatherBtn = document.getElementById("weatherBtn");
 const weatherInfo = document.getElementById("weatherInfo");
+const lastCitiesDiv = document.getElementById("lastCitiesDiv");
+
+const lastCities = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   if (localStorage.getItem("weather")) {
     const data = JSON.parse(localStorage.getItem("weather"));
     displayWeather(data);
+  }
+  if (localStorage.getItem("cities")) {
+    const data = JSON.parse(localStorage.getItem("cities"));
+    data.forEach((city) => {
+      if (city) {
+        lastCities.push(city);
+        const button = document.createElement("button");
+        const lang = document.getElementById("langSelect").value;
+        button.onclick = async () => {
+          const weatherLocalStorage = await fetchWeather(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=${lang}`
+          );
+          displayWeather(weatherLocalStorage);
+        };
+
+        button.textContent = city;
+        lastCitiesDiv.appendChild(button);
+      }
+    });
   }
 });
 
@@ -17,6 +38,25 @@ async function fetchWeather(url) {
     if (!res.ok) throw new Error(res.status);
     const data = await res.json();
     localStorage.setItem("weather", JSON.stringify(data));
+    if (!lastCities.includes(data.name)) {
+      lastCities.unshift(data.name);
+      lastCities.length = 3;
+      lastCitiesDiv.innerHTML = "";
+      lastCities.forEach((city) => {
+        const button = document.createElement("button");
+        const lang = document.getElementById("langSelect").value;
+        button.onclick = async () => {
+          const weatherLocalStorage = await fetchWeather(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric&lang=${lang}`
+          );
+          displayWeather(weatherLocalStorage);
+        };
+
+        button.textContent = city;
+        lastCitiesDiv.appendChild(button);
+      });
+      localStorage.setItem("cities", JSON.stringify(lastCities));
+    }
     return data;
   } catch (error) {
     weatherInfo.innerHTML = `<p>Не удалось получить геолокацию</p>`;
